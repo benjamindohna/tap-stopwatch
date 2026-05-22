@@ -9,7 +9,7 @@
 <title>Stopwatch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-menu:    #0c0c0c;
@@ -45,7 +45,7 @@
   html.state-paused,  body.state-paused  { background: var(--bg-paused); }
 
   body {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont,
+    font-family: "Geist", -apple-system, BlinkMacSystemFont,
                  "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
     color: var(--fg);
     position: fixed;
@@ -124,36 +124,37 @@
   body.state-menu .start-btn { display: inline-block; }
 
   .stopwatch {
-    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-family: "Geist", -apple-system, BlinkMacSystemFont,
+                 "Helvetica Neue", sans-serif;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum" 1, "zero" 1;
+    font-feature-settings: "tnum" 1;
     display: none;
     align-items: baseline;
     justify-content: center;
     gap: 0;
-    font-weight: 200;
+    font-weight: 300;
   }
   body.state-ready    .stopwatch,
   body.state-running  .stopwatch,
   body.state-paused   .stopwatch { display: flex; }
 
-  body.state-ready   .stopwatch { opacity: 0.32; }
-  body.state-paused  .stopwatch { opacity: 0.55; }
+  body.state-ready   .stopwatch { opacity: 0.4; }
+  body.state-paused  .stopwatch { opacity: 0.82; }
   body.state-running .stopwatch { opacity: 1; }
 
   .sw-main {
-    font-size: clamp(76px, 22vw, 168px);
+    font-size: clamp(80px, 23vw, 172px);
     line-height: 1;
-    letter-spacing: -0.04em;
-    font-weight: 200;
+    letter-spacing: -0.045em;
+    font-weight: 300;
   }
   .sw-ms {
-    font-size: clamp(28px, 8vw, 60px);
+    font-size: clamp(30px, 8.5vw, 64px);
     line-height: 1;
-    letter-spacing: -0.02em;
-    font-weight: 200;
-    opacity: 0.5;
-    margin-left: 2px;
+    letter-spacing: -0.025em;
+    font-weight: 300;
+    opacity: 0.55;
+    margin-left: 3px;
   }
 </style>
 </head>
