@@ -15,7 +15,7 @@
     --bg-menu:    #0c0c0c;
     --bg-ready:   #171717;
     --bg-running: #1f1f1f;
-    --bg-paused:  #1c1c1c;
+    --bg-paused:  #151515;
     --fg:         #f2f2f2;
     --fg-mute:    rgba(242, 242, 242, 0.45);
     --fg-faint:   rgba(242, 242, 242, 0.25);
@@ -138,10 +138,6 @@
   body.state-running  .stopwatch,
   body.state-paused   .stopwatch { display: flex; }
 
-  body.state-ready   .stopwatch { opacity: 0.45; }
-  body.state-paused  .stopwatch { opacity: 0.93; }
-  body.state-running .stopwatch { opacity: 1; }
-
   .sw-main {
     font-size: clamp(80px, 23vw, 172px);
     line-height: 1;
@@ -156,6 +152,23 @@
     opacity: 0.5;
     margin-left: 4px;
   }
+
+  .hint {
+    position: fixed;
+    bottom: calc(max(28px, env(safe-area-inset-bottom)) + 8px);
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    pointer-events: none;
+    display: none;
+    font-weight: 400;
+  }
+  body.state-ready   .hint,
+  body.state-running .hint,
+  body.state-paused  .hint { display: block; }
 </style>
 </head>
 <body class="state-menu">
@@ -167,6 +180,7 @@
       <span class="sw-main" id="swMain">00</span><span class="sw-ms" id="swMs">.000</span>
     </div>
   </div>
+  <div class="hint" id="hint"></div>
 
 <script>
 (function () {
@@ -177,12 +191,19 @@
   const backBtn   = document.getElementById('backBtn');
   const swMain    = document.getElementById('swMain');
   const swMs      = document.getElementById('swMs');
+  const hint      = document.getElementById('hint');
 
   const THEME = {
     menu:    '#0c0c0c',
-    ready:   '#161616',
+    ready:   '#171717',
     running: '#1f1f1f',
-    paused:  '#121212',
+    paused:  '#151515',
+  };
+
+  const HINTS = {
+    ready:   'Tap to start',
+    running: 'Tap to pause · Double tap to reset',
+    paused:  'Tap to start · Double tap to reset',
   };
 
   let state       = 'menu';
@@ -198,6 +219,7 @@
     body.className = 'state-' + s;
     html.className = 'state-' + s;
     themeMeta.setAttribute('content', THEME[s]);
+    hint.textContent = HINTS[s] || '';
   }
 
   function render(totalMs) {
