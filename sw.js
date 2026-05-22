@@ -1,8 +1,9 @@
-const CACHE = 'freekick-stopwatch-v1';
+const CACHE = 'freekick-stopwatch-v2';
 const CORE = [
   './',
   './index.html',
   './wallpapers-leo-messi-v0-dlkenu1wdnvd1.jpg',
+  './freekick-icon.png',
   './manifest.webmanifest',
 ];
 
