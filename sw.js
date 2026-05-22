@@ -1,4 +1,4 @@
-const CACHE = 'freekick-stopwatch-v2';
+const CACHE = 'freekick-stopwatch-v3';
 const CORE = [
   './',
   './index.html',
