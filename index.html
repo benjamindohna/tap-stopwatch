@@ -22,7 +22,7 @@
     height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
-    touch-action: manipulation;
+    touch-action: none;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -165,9 +165,9 @@
   let startTime   = 0;
   let accumulated = 0;
   let rafId       = null;
-  let tapTimer    = null;
+  let resetWindow = null;
 
-  const DOUBLE_TAP_MS = 230;
+  const RESET_WINDOW_MS = 260;
 
   function setState(s) {
     state = s;
@@ -224,7 +224,7 @@
   function goToMenu() {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = null;
-    if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
+    if (resetWindow) { clearTimeout(resetWindow); resetWindow = null; }
     accumulated = 0;
     startTime = 0;
     render(0);
@@ -256,17 +256,19 @@
     }
 
     if (state === 'running' || state === 'paused') {
-      if (tapTimer) {
-        clearTimeout(tapTimer);
-        tapTimer = null;
+      if (resetWindow) {
+        clearTimeout(resetWindow);
+        resetWindow = null;
         reset();
-      } else {
-        tapTimer = setTimeout(function () {
-          tapTimer = null;
-          if (state === 'running') pause();
-          else if (state === 'paused') resume();
-        }, DOUBLE_TAP_MS);
+        return;
       }
+
+      if (state === 'running') pause();
+      else resume();
+
+      resetWindow = setTimeout(function () {
+        resetWindow = null;
+      }, RESET_WINDOW_MS);
     }
   }, { passive: true });
 
