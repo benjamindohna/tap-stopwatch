@@ -6,7 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" id="themeColor" content="#000000">
-<title>Stopwatch</title>
+<meta name="apple-mobile-web-app-title" content="Freekick">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Freekick Stopwatch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -190,7 +192,7 @@
     font-size: 11px;
     letter-spacing: 3.5px;
     text-transform: uppercase;
-    color: var(--fg);
+    color: var(--fg-mute);
     pointer-events: none;
     display: none;
     font-weight: 400;
@@ -204,7 +206,7 @@
 <body class="state-menu">
   <img class="bg-image" src="wallpapers-leo-messi-v0-dlkenu1wdnvd1.jpg" alt="" aria-hidden="true">
   <button class="back-btn" id="backBtn" type="button">← back</button>
-  <div class="brand">Stopwatch</div>
+  <div class="brand">Freekick Stopwatch</div>
   <button class="start-btn" id="startBtn" type="button">Start</button>
   <div class="stopwatch">
     <span class="sw-main" id="swMain">00</span><span class="sw-ms" id="swMs">.000</span>
@@ -343,6 +345,12 @@
 
   render(0);
 })();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
 </script>
 </body>
 </html>
