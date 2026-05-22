@@ -57,6 +57,41 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('wallpapers-leo-messi-v0-dlkenu1wdnvd1.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: saturate(0.8) contrast(0.95);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 75% 60% at center,
+                      rgba(0, 0, 0, 0.45) 0%,
+                      rgba(0, 0, 0, 0.18) 55%,
+                      rgba(0, 0, 0, 0) 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  body.state-ready::before,
+  body.state-running::before,
+  body.state-paused::before { opacity: 0.32; }
+  body.state-ready::after,
+  body.state-running::after,
+  body.state-paused::after { opacity: 1; }
+
+  #screen, .hint, .brand { position: relative; z-index: 2; }
+
   .back-btn {
     position: fixed;
     top: max(18px, env(safe-area-inset-top));
