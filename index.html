@@ -12,10 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-menu:    #0c0c0c;
-    --bg-ready:   #171717;
+    --bg-home:    #0c0c0c;
+    --bg-active:  #151515;
     --bg-running: #1f1f1f;
-    --bg-paused:  #151515;
     --fg:         #f2f2f2;
     --fg-mute:    rgba(242, 242, 242, 0.45);
     --fg-faint:   rgba(242, 242, 242, 0.25);
@@ -39,10 +38,11 @@
     touch-action: none;
   }
 
-  html.state-menu,    body.state-menu    { background: var(--bg-menu); }
-  html.state-ready,   body.state-ready   { background: var(--bg-ready); }
-  html.state-running, body.state-running { background: var(--bg-running); }
-  html.state-paused,  body.state-paused  { background: var(--bg-paused); }
+  html { background: var(--bg-home); }
+  body.state-menu    { background: var(--bg-home); }
+  body.state-ready   { background: var(--bg-active); }
+  body.state-running { background: var(--bg-running); }
+  body.state-paused  { background: var(--bg-active); }
 
   body {
     font-family: "Geist", -apple-system, BlinkMacSystemFont,
@@ -50,47 +50,42 @@
     color: var(--fg);
     position: fixed;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body::before {
-    content: '';
+  .bg-image {
     position: fixed;
-    inset: 0;
-    background-image: url('wallpapers-leo-messi-v0-dlkenu1wdnvd1.webp');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: saturate(0.8) contrast(0.95);
-    opacity: 0;
+    top: 48%;
+    left: 0;
+    width: 100%;
+    height: auto;
     pointer-events: none;
     z-index: 0;
+    display: none;
+    filter: saturate(0.85);
+    -webkit-user-drag: none;
   }
+  body:not(.state-menu) .bg-image { display: block; }
+
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background:
-      radial-gradient(ellipse 75% 60% at center,
-                      rgba(0, 0, 0, 0.45) 0%,
-                      rgba(0, 0, 0, 0.18) 55%,
-                      rgba(0, 0, 0, 0) 100%);
-    opacity: 0;
+    background: linear-gradient(
+      to bottom,
+      var(--bg-home) 0%,
+      var(--bg-home) 30%,
+      rgba(12, 12, 12, 0.88) 40%,
+      rgba(12, 12, 12, 0.62) 55%,
+      rgba(12, 12, 12, 0.28) 80%,
+      rgba(12, 12, 12, 0.15) 100%
+    );
+    display: none;
     pointer-events: none;
     z-index: 1;
   }
-  body.state-ready::before,
-  body.state-running::before,
-  body.state-paused::before { opacity: 0.32; }
-  body.state-ready::after,
-  body.state-running::after,
-  body.state-paused::after { opacity: 1; }
-
-  #screen, .hint, .brand { position: relative; z-index: 2; }
+  body:not(.state-menu)::after { display: block; }
 
   .back-btn {
     position: fixed;
@@ -109,9 +104,7 @@
     display: none;
   }
   .back-btn:active { color: var(--fg); }
-  body:not(.state-menu) .back-btn {
-    display: block;
-  }
+  body:not(.state-menu) .back-btn { display: block; }
 
   .brand {
     position: fixed;
@@ -124,21 +117,15 @@
     color: var(--fg-faint);
     pointer-events: none;
     display: none;
+    z-index: 2;
   }
   body.state-menu .brand { display: block; }
 
-  #screen {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-  }
-
   .start-btn {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding: 18px 56px;
     font-size: 13px;
     font-weight: 500;
@@ -150,15 +137,20 @@
     border-radius: 999px;
     cursor: pointer;
     font-family: inherit;
+    z-index: 2;
     display: none;
   }
   .start-btn:active {
     background: rgba(242, 242, 242, 0.06);
     border-color: rgba(242, 242, 242, 0.6);
   }
-  body.state-menu .start-btn { display: inline-block; }
+  body.state-menu .start-btn { display: block; }
 
   .stopwatch {
+    position: fixed;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: "Geist", -apple-system, BlinkMacSystemFont,
                  "Helvetica Neue", sans-serif;
     font-variant-numeric: tabular-nums;
@@ -168,6 +160,8 @@
     justify-content: center;
     gap: 0;
     font-weight: 300;
+    z-index: 2;
+    white-space: nowrap;
   }
   body.state-ready    .stopwatch,
   body.state-running  .stopwatch,
@@ -200,6 +194,7 @@
     pointer-events: none;
     display: none;
     font-weight: 400;
+    z-index: 2;
   }
   body.state-ready   .hint,
   body.state-running .hint,
@@ -207,13 +202,12 @@
 </style>
 </head>
 <body class="state-menu">
+  <img class="bg-image" src="wallpapers-leo-messi-v0-dlkenu1wdnvd1.webp" alt="" aria-hidden="true">
   <button class="back-btn" id="backBtn" type="button">← back</button>
   <div class="brand">Stopwatch</div>
-  <div id="screen">
-    <button class="start-btn" id="startBtn" type="button">Start</button>
-    <div class="stopwatch">
-      <span class="sw-main" id="swMain">00</span><span class="sw-ms" id="swMs">.000</span>
-    </div>
+  <button class="start-btn" id="startBtn" type="button">Start</button>
+  <div class="stopwatch">
+    <span class="sw-main" id="swMain">00</span><span class="sw-ms" id="swMs">.000</span>
   </div>
   <div class="hint" id="hint"></div>
 
@@ -227,13 +221,6 @@
   const swMain    = document.getElementById('swMain');
   const swMs      = document.getElementById('swMs');
   const hint      = document.getElementById('hint');
-
-  const THEME = {
-    menu:    '#0c0c0c',
-    ready:   '#171717',
-    running: '#1f1f1f',
-    paused:  '#151515',
-  };
 
   const HINTS = {
     ready:   'Tap to start',
@@ -253,7 +240,6 @@
     state = s;
     body.className = 'state-' + s;
     html.className = 'state-' + s;
-    themeMeta.setAttribute('content', THEME[s]);
     hint.textContent = HINTS[s] || '';
   }
 
