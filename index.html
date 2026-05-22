@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#111111">
+<title>Tap Stopwatch</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #111;
+    color: #fff;
+    position: fixed;
+    inset: 0;
+    transition: background-color 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  body.state-menu    { background: #111111; }
+  body.state-ready   { background: #b45309; }
+  body.state-running { background: #15803d; }
+  body.state-paused  { background: #1e3a8a; }
+
+  .back-btn {
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    padding: 9px 16px;
+    background: rgba(0, 0, 0, 0.28);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  body:not(.state-menu) .back-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .start-btn {
+    padding: 20px 52px;
+    font-size: 22px;
+    font-weight: 600;
+    background: #fff;
+    color: #111;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    display: none;
+  }
+  body.state-menu .start-btn { display: inline-block; }
+
+  .ready-text {
+    font-size: clamp(26px, 7vw, 38px);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    display: none;
+  }
+  body.state-ready .ready-text { display: block; }
+
+  .stopwatch {
+    font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    display: none;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    font-weight: 200;
+  }
+  body.state-running .stopwatch,
+  body.state-paused .stopwatch { display: flex; }
+
+  .sw-main { font-size: clamp(64px, 18vw, 140px); line-height: 1; }
+  .sw-ms   { font-size: clamp(28px, 7vw, 56px); line-height: 1; opacity: 0.72; }
+
+  .hint {
+    position: fixed;
+    bottom: max(22px, env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.55;
+    pointer-events: none;
+    display: none;
+  }
+  body.state-running .hint,
+  body.state-paused .hint { display: block; }
+
+  .menu-title {
+    position: fixed;
+    top: max(20px, env(safe-area-inset-top));
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 14px;
+    letter-spacing: 2px;
+    opacity: 0.5;
+    text-transform: uppercase;
+    display: none;
+  }
+  body.state-menu .menu-title { display: block; }
+</style>
+</head>
+<body class="state-menu">
+  <button class="back-btn" id="backBtn" type="button">← zurück</button>
+  <div class="menu-title">Tap Stopwatch</div>
+  <div id="screen">
+    <button class="start-btn" id="startBtn" type="button">Start</button>
+    <div class="ready-text">Ready for input</div>
+    <div class="stopwatch">
+      <span class="sw-main" id="swMain">0</span><span class="sw-ms" id="swMs">.000</span>
+    </div>
+  </div>
+  <div class="hint">Tap pausiert · Doppeltipp resettet</div>
+
+<script>
+(function () {
+  const body     = document.body;
+  const startBtn = document.getElementById('startBtn');
+  const backBtn  = document.getElementById('backBtn');
+  const swMain   = document.getElementById('swMain');
+  const swMs     = document.getElementById('swMs');
+
+  let state       = 'menu';
+  let startTime   = 0;
+  let accumulated = 0;
+  let rafId       = null;
+  let tapTimer    = null;
+
+  const DOUBLE_TAP_MS = 230;
+
+  function setState(s) {
+    state = s;
+    body.className = 'state-' + s;
+  }
+
+  function render(totalMs) {
+    const totalSec = Math.floor(totalMs / 1000);
+    const ms = Math.floor(totalMs % 1000);
+    if (totalSec < 60) {
+      swMain.textContent = String(totalSec);
+    } else {
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      swMain.textContent = m + ':' + String(s).padStart(2, '0');
+    }
+    swMs.textContent = '.' + String(ms).padStart(3, '0');
+  }
+
+  function tick() {
+    render(accumulated + (performance.now() - startTime));
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function startRunning() {
+    startTime = performance.now();
+    setState('running');
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function pause() {
+    accumulated += performance.now() - startTime;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    render(accumulated);
+    setState('paused');
+  }
+
+  function resume() {
+    startTime = performance.now();
+    setState('running');
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function reset() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    accumulated = 0;
+    startTime = 0;
+    render(0);
+    setState('ready');
+  }
+
+  function goToMenu() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
+    accumulated = 0;
+    startTime = 0;
+    render(0);
+    setState('menu');
+  }
+
+  startBtn.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+  });
+  startBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setState('ready');
+  });
+
+  backBtn.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+  });
+  backBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    goToMenu();
+  });
+
+  document.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('button')) return;
+
+    if (state === 'ready') {
+      startRunning();
+      return;
+    }
+
+    if (state === 'running' || state === 'paused') {
+      if (tapTimer) {
+        clearTimeout(tapTimer);
+        tapTimer = null;
+        reset();
+      } else {
+        tapTimer = setTimeout(function () {
+          tapTimer = null;
+          if (state === 'running') pause();
+          else if (state === 'paused') resume();
+        }, DOUBLE_TAP_MS);
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+  document.addEventListener('dblclick', function (e) { e.preventDefault(); });
+
+  render(0);
+})();
+</script>
+</body>
+</html>
