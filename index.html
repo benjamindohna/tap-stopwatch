@@ -7,6 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" id="themeColor" content="#0c0c0c">
 <title>Stopwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-menu:    #0c0c0c;
@@ -42,8 +45,8 @@
   html.state-paused,  body.state-paused  { background: var(--bg-paused); }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-                 "Helvetica Neue", "Inter", "Segoe UI", Roboto, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont,
+                 "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
     color: var(--fg);
     position: fixed;
     inset: 0;
@@ -68,14 +71,11 @@
     letter-spacing: 1.5px;
     cursor: pointer;
     z-index: 10;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, color 0.2s ease;
+    display: none;
   }
   .back-btn:active { color: var(--fg); }
   body:not(.state-menu) .back-btn {
-    opacity: 1;
-    pointer-events: auto;
+    display: block;
   }
 
   .brand {
@@ -87,11 +87,10 @@
     letter-spacing: 5px;
     text-transform: uppercase;
     color: var(--fg-faint);
-    opacity: 0;
-    transition: opacity 0.3s ease;
     pointer-events: none;
+    display: none;
   }
-  body.state-menu .brand { opacity: 1; }
+  body.state-menu .brand { display: block; }
 
   #screen {
     width: 100%;
@@ -116,7 +115,6 @@
     border-radius: 999px;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.18s ease, border-color 0.18s ease;
     display: none;
   }
   .start-btn:active {
@@ -126,15 +124,14 @@
   body.state-menu .start-btn { display: inline-block; }
 
   .stopwatch {
+    font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum" 1, "ss01" 1;
+    font-feature-settings: "tnum" 1, "zero" 1;
     display: none;
     align-items: baseline;
     justify-content: center;
     gap: 0;
     font-weight: 200;
-    transition: opacity 0.3s ease;
-    will-change: opacity;
   }
   body.state-ready    .stopwatch,
   body.state-running  .stopwatch,
